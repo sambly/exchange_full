@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  feeder_app:
+    build: ./feederApp
+    volumes:
+      - ./log:/log
+    environment:
+      ENVIRONMENT: docker
+      DB_HOST_Docker: mysql
+      DB_PORT: 3306
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - mysql
+    networks:
+      - shared_network
+
+  exchange_app:
+    build: ./exchangeBot
+    volumes:
+      - ./log:/log
+    ports:
+      - "80:80"
+    environment:
+      ENVIRONMENT: docker
+      production: ${production}
+      inProductionOnlyApp: ${inProductionOnlyApp}
+      inProductionWithFrontedNgingx: ${inProductionWithFrontedNgingx}
+      httpPortProduction: ${httpPortProduction}
+      hostWeb: ${hostWeb}
+      usernameAuth: ${usernameAuth}
+      passwordAuth: ${passwordAuth}
+      API_KEY: ${API_KEY}
+      API_SECRET: ${API_SECRET}
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+      TELEGRAM_USER: ${TELEGRAM_USER}
+      DB_HOST_Docker: mysql
+      DB_PORT: 3306
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - mysql
+    networks:
+      - shared_network
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data_exchange_full:/var/lib/mysql
+    networks:
+      - shared_network
+
+volumes:
+  mysql_data_exchange_full:
+
+networks:
+  shared_network:
