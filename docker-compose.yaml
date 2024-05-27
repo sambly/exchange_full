@@ -3,6 +3,7 @@ version: '3.8'
 services:
   feeder_app:
     build: ./feederApp
+    image: sambly/feeder_app:latest
     volumes:
       - ./log:/log
     environment:
@@ -20,6 +21,7 @@ services:
 
   exchange_app:
     build: ./exchangeBot
+    image: sambly/exchange_app:latest
     volumes:
       - ./log:/log
     ports:
