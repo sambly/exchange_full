@@ -25,7 +25,7 @@ services:
     volumes:
       - ./log:/log
     ports:
-      - "80:80"
+      - "444:444"
     environment:
       ENVIRONMENT: docker
       production: ${production}
