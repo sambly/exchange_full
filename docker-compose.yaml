@@ -5,7 +5,7 @@ services:
     build: ./feederApp
     image: sambly/feeder_app:latest
     volumes:
-      - ./log/feeder_app:/log
+      - ./log/feeder_app:/app/log
     environment:
       ENVIRONMENT: docker
       DB_HOST_Docker: mysql
@@ -23,7 +23,7 @@ services:
     build: ./exchangeBot
     image: sambly/exchange_app:latest
     volumes:
-    - ./log/exchange_app:/log
+    - ./log/exchange_app:/app/log
     ports:
       - "444:444"
     environment:
