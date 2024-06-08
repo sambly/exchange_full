@@ -37,7 +37,7 @@ jobs:
         docker build -t sambly/exchange_app:latest .
         docker push sambly/exchange_app:latest
 
-    - name: Deploy to remote server via jump host
+    - name: Deploy to remote Windows server via jump host
       env:
         JUMP_HOST: ${{ secrets.JUMP_HOST }}
         JUMP_USER: ${{ secrets.JUMP_USER }}
@@ -47,12 +47,11 @@ jobs:
       run: |
         echo "$SSH_KEY" > private_key.pem
         chmod 600 private_key.pem
-        ssh -o ProxyCommand="ssh -i private_key.pem -W %h:%p $JUMP_USER@$JUMP_HOST" -i private_key.pem $LOCAL_USER@$LOCAL_HOST << 'EOF'
-          cd /path/to/your/docker-compose/project
+        ssh -o ProxyCommand="ssh -i private_key.pem -W %h:%p $JUMP_USER@$JUMP_HOST" -i private_key.pem $LOCAL_USER@$LOCAL_HOST powershell << 'EOF'
+          cd C:\Users\admin\Desktop\go\exchange_full
           docker-compose pull
           docker-compose up -d
         EOF
-      continue-on-error: true
 
     - name: Notify failure
       if: failure()
