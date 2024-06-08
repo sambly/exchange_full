@@ -26,14 +26,14 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build and push feeder_app
+      working-directory: feederApp
       run: |
-        cd feederApp
         docker build -t sambly/feeder_app:latest .
         docker push sambly/feeder_app:latest
 
     - name: Build and push exchange_app
+      working-directory: exchangeBot
       run: |
-        cd exchangeBot
         docker build -t sambly/exchange_app:latest .
         docker push sambly/exchange_app:latest
 
@@ -48,4 +48,32 @@ jobs:
         echo "$SSH_KEY" > private_key.pem
         chmod 600 private_key.pem
         ssh -o ProxyCommand="ssh -i private_key.pem -W %h:%p $JUMP_USER@$JUMP_HOST" -i private_key.pem $LOCAL_USER@$LOCAL_HOST powershell << 'EOF'
-          cd C:\Users\admin\Deskt
+          cd C:\Users\admin\Desktop\go\exchange_full
+          docker-compose pull
+          docker-compose up -d
+        EOF
+
+    - name: Check deployment status
+      id: deployment-status
+      run: |
+        if [ $? -eq 0 ]; then echo "status=success" >> $GITHUB_ENV; else echo "status=failure" >> $GITHUB_ENV; fi
+
+    - name: Notify failure
+      if: ${{ env.status == 'failure' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        curl -H "Authorization: token $GITHUB_TOKEN" \
+             -H "Content-Type: application/json" \
+             -d '{"body": "Deployment failed. Please check the workflow logs for details."}' \
+             "https://api.github.com/repos/${{ github.repository }}/issues/1/comments"
+
+    - name: Notify success
+      if: ${{ env.status == 'success' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        curl -H "Authorization: token $GITHUB_TOKEN" \
+             -H "Content-Type: application/json" \
+             -d '{"body": "Deployment succeeded."}' \
+             "https://api.github.com/repos/${{ github.repository }}/issues/1/comments"
