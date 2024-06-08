@@ -58,7 +58,7 @@ jobs:
       uses: actions/github-script@v4
       with:
         script: |
-          const github = require('@actions/github');
+          const { github } = require('@actions/github');
           github.rest.issues.createComment({
             issue_number: 1,
             owner: github.context.repo.owner,
@@ -71,7 +71,7 @@ jobs:
       uses: actions/github-script@v4
       with:
         script: |
-          const github = require('@actions/github');
+          const { github } = require('@actions/github');
           github.rest.issues.createComment({
             issue_number: 1,
             owner: github.context.repo.owner,
