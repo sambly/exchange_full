@@ -48,35 +48,4 @@ jobs:
         echo "$SSH_KEY" > private_key.pem
         chmod 600 private_key.pem
         ssh -o ProxyCommand="ssh -i private_key.pem -W %h:%p $JUMP_USER@$JUMP_HOST" -i private_key.pem $LOCAL_USER@$LOCAL_HOST powershell << 'EOF'
-          cd C:\Users\admin\Desktop\go\exchange_full
-          docker-compose pull
-          docker-compose up -d
-        EOF
-
-    - name: Notify failure
-      if: failure()
-      uses: actions/github-script@v4
-      with:
-        script: |
-          const context = require('@actions/github').context;
-          const github = require('@actions/github');
-          github.rest.issues.createComment({
-            issue_number: 1,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: 'Deployment failed. Please check the workflow logs for details.'
-          });
-
-    - name: Notify success
-      if: success()
-      uses: actions/github-script@v4
-      with:
-        script: |
-          const context = require('@actions/github').context;
-          const github = require('@actions/github');
-          github.rest.issues.createComment({
-            issue_number: 1,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: 'Deployment succeeded.'
-          });
+          cd C:\Users\admin\Deskt
