@@ -25,17 +25,11 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and push feeder_app
-      working-directory: feederApp
+    - name: Build and push Docker images
       run: |
-        docker build -t sambly/feeder_app:latest .
-        docker push sambly/feeder_app:latest
-
-    - name: Build and push exchange_app
-      working-directory: exchangeBot
-      run: |
-        docker build -t sambly/exchange_app:latest .
-        docker push sambly/exchange_app:latest
+        docker-compose build
+        docker-compose push
+      working-directory: ${{ github.workspace }}
 
     - name: Deploy to remote Windows server via jump host
       env:
@@ -47,33 +41,8 @@ jobs:
       run: |
         echo "$SSH_KEY" > private_key.pem
         chmod 600 private_key.pem
-        ssh -o ProxyCommand="ssh -i private_key.pem -W %h:%p $JUMP_USER@$JUMP_HOST" -i private_key.pem $LOCAL_USER@$LOCAL_HOST powershell << 'EOF'
+        ssh -o ProxyCommand="ssh -i private_key.pem -W %h:%p $JUMP_USER@$JUMP_HOST" -i private_key.pem $LOCAL_USER@$LOCAL_HOST << 'EOF'
           cd C:\Users\admin\Desktop\go\exchange_full
           docker-compose pull
           docker-compose up -d
         EOF
-
-    - name: Check deployment status
-      id: deployment-status
-      run: |
-        if [ $? -eq 0 ]; then echo "status=success" >> $GITHUB_ENV; else echo "status=failure" >> $GITHUB_ENV; fi
-
-    - name: Notify failure
-      if: ${{ env.status == 'failure' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        curl -H "Authorization: token $GITHUB_TOKEN" \
-             -H "Content-Type: application/json" \
-             -d '{"body": "Deployment failed. Please check the workflow logs for details."}' \
-             "https://api.github.com/repos/${{ github.repository }}/issues/1/comments"
-
-    - name: Notify success
-      if: ${{ env.status == 'success' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        curl -H "Authorization: token $GITHUB_TOKEN" \
-             -H "Content-Type: application/json" \
-             -d '{"body": "Deployment succeeded."}' \
-             "https://api.github.com/repos/${{ github.repository }}/issues/1/comments"
