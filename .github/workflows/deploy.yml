@@ -40,6 +40,7 @@ jobs:
       run: |
         echo "$SSH_KEY" > private_key.pem
         chmod 600 private_key.pem
+        mkdir -p ~/.ssh
         ssh-keyscan -H ${{ secrets.JUMP_HOST }} >> ~/.ssh/known_hosts
         ssh-keyscan -H ${{ secrets.LOCAL_HOST }} >> ~/.ssh/known_hosts
 
