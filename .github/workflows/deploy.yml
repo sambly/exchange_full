@@ -46,7 +46,7 @@ jobs:
       run: |
         echo "$SSH_KEY" > private_key.pem
         chmod 600 private_key.pem
-        ssh -o ProxyCommand="ssh -i private_key.pem -W %h:%p $JUMP_USER@$JUMP_HOST" -i private_key.pem $LOCAL_USER@$LOCAL_HOST << 'EOF'
+        ssh -o ProxyCommand="ssh -i private_key -W %h:%p $JUMP_USER@$JUMP_HOST" -i private_key.pem $LOCAL_USER@$LOCAL_HOST << 'EOF'
           cd C:\Users\admin\Desktop\go\exchange_full
           docker-compose -f docker-compose.yaml pull
           docker-compose -f docker-compose.yaml up -d
