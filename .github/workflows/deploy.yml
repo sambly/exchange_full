@@ -42,6 +42,7 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/private_key
         chmod 600 ~/.ssh/private_key
         echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+        cat ~/.ssh/known_hosts
         # echo "Private key:"
         # cat ~/.ssh/private_key
         # echo "Public key:"
