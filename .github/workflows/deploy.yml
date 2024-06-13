@@ -52,7 +52,12 @@ jobs:
         #ssh-keyscan -H -p 2222 $LOCAL_HOST >> ~/.ssh/known_hosts
        
     - name: Deploy to remote Windows server via jump host
-
+      env:
+        JUMP_HOST: ${{ secrets.JUMP_HOST }}
+        JUMP_USER: ${{ secrets.JUMP_USER }}
+        LOCAL_HOST: ${{ secrets.LOCAL_HOST }}
+        LOCAL_USER: ${{ secrets.LOCAL_USER }}
+        SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
         ssh -o StrictHostKeyChecking=no -o ProxyCommand="ssh -i ~/.ssh/private_key -W %h:%p $JUMP_USER@$JUMP_HOST" -i ~/.ssh/private_key -p 2222 $LOCAL_USER@$LOCAL_HOST << 'EOF'
         cd C:\\Users\\admin\\Desktop\\go\\exchange_full
