@@ -46,15 +46,7 @@ jobs:
     #     ssh-keyscan -H -p 2222 ${{ secrets.LOCAL_HOST }} >> ~/.ssh/known_hosts
     - name: Set up environment variables for testing
       run: |
-        echo "TEST_PRIVATE_KEY=-----BEGIN OPENSSH PRIVATE KEY-----
-          b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-          QyNTUxOQAAACDMWFbfL0KITyZVCnb91QCOm3JXqp2H+QZzwgOQKmu3WwAAAKinCVI1pwlS
-          NQAAAAtzc2gtZWQyNTUxOQAAACDMWFbfL0KITyZVCnb91QCOm3JXqp2H+QZzwgOQKmu3Ww
-          AAAEDBZzlSMiJVMK7+YJ4v9Wkn9lmTVeNVN+Mc4Lzjqn9S5sxYVt8vQohPJlUKdv3VAI6b
-          cleqnYf5BnPCA5Aqa7dbAAAAHnphb2J0XGt1ZHJqYXZjZXYuZWFAQlQtUEMtMDA4MAECAw
-          QFBgc=
-          -----END OPENSSH PRIVATE KEY-----
-          " >> $GITHUB_ENV
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/private_key
         echo "TEST_USER=Kudrjavcev.EA" >> $GITHUB_ENV
         echo "JUMP_HOST=91.240.38.235" >> $GITHUB_ENV
         echo "LOCAL_USER=admin" >> $GITHUB_ENV
