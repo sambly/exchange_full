@@ -21,15 +21,15 @@ jobs:
  
     - name: Set Git configuration
       run: |
-        git config --global user.name "workflow"
+        git config --global user.name "workflow"s
         git config --global user.email "kudryavblyzheka@mail.ru"
 
     - name: Update submodules to latest commit
       run: |
-        git submodule sync
+        git submodule syncs
         git submodule update --init --recursive
         git submodule foreach --recursive 'git fetch --all'
-        git submodule foreach --recursive 'git merge --allow-unrelated-histories origin/main || :'
+        #git submodule foreach --recursive 'git merge --allow-unrelated-histories origin/main || :'
   
 
     - name: Set up Docker Buildx
