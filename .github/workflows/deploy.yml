@@ -19,6 +19,11 @@ jobs:
         submodules: true # Checkout submodules
         token: ${{ secrets.G_TOKEN }} # Use token for submodules   
  
+    - name: Set Git configuration
+      run: |
+        git config --global user.name "workflow"
+        git config --global user.email "kudryavblyzheka@mail.ru"
+
     - name: Update submodules to latest commit
       run: |
         git submodule sync
