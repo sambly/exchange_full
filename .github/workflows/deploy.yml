@@ -23,7 +23,9 @@ jobs:
       run: |
         git submodule sync
         git submodule update --init --recursive
-        git submodule update --remote --merge
+        git submodule foreach --recursive 'git fetch --all'
+        git submodule foreach --recursive 'git merge --allow-unrelated-histories origin/main || :'
+  
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
