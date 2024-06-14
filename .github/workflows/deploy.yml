@@ -29,7 +29,12 @@ jobs:
         git submodule sync
         git submodule update --init --recursive
         git submodule foreach --recursive 'git fetch --all'
-        #git submodule foreach --recursive 'git merge --allow-unrelated-histories origin/main || :'
+        git submodule foreach --recursive 'git checkout origin/main'
+        git submodule foreach --recursive 'git pull origin main'
+
+    - name: Verify submodule status
+      run: |
+        git submodule status
   
 
     - name: Set up Docker Buildx
