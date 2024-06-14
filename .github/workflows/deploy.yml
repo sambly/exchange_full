@@ -26,7 +26,7 @@ jobs:
 
     - name: Update submodules to latest commit
       run: |
-        git submodule syncs
+        git submodule sync
         git submodule update --init --recursive
         git submodule foreach --recursive 'git fetch --all'
         #git submodule foreach --recursive 'git merge --allow-unrelated-histories origin/main || :'
