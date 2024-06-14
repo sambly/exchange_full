@@ -21,7 +21,7 @@ jobs:
  
     - name: Set Git configuration
       run: |
-        git config --global user.name "workflow"s
+        git config --global user.name "workflow"
         git config --global user.email "kudryavblyzheka@mail.ru"
 
     - name: Update submodules to latest commit
