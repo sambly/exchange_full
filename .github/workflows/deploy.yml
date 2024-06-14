@@ -32,11 +32,14 @@ jobs:
         git submodule foreach --recursive 'git checkout origin/main'
         git submodule foreach --recursive 'git pull origin main'
 
-    - name: Verify submodule status
+    - name: Commit and push submodule updates
+      env:
+        GITHUB_TOKEN: ${{ secrets.G_TOKEN }}
       run: |
-        git submodule status
+        git add .
+        git commit -m "Update submodules to latest commit" || echo "No changes to commit"
+        git push origin main
   
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
