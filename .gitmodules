@@ -4,3 +4,6 @@
 [submodule "exchangeBot"]
 	path = exchangeBot
 	url = https://github.com/sambly/exchangeBot.git
+[submodule "exchangeService"]
+	path = exchangeService
+	url = https://github.com/sambly/exchangeService.git

@@ -1,50 +1,70 @@
 version: '3.9'
 
 services:
+
   feeder_app:
-    build: ./feederApp
+    build:
+      context: ./feederApp
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+        ENVIRONMENT: docker
     image: sambly/feeder_app:latest
     volumes:
       - ./log/feeder_app:/app/log
     environment:
       ENVIRONMENT: docker
-      DB_HOST_Docker: mysql
-      DB_PORT: 3306
+      DB_HOST_Docker: ${DB_HOST_Docker}
+      DB_PORT: ${DB_PORT}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+      grpc_Host_Docker: ${grpc_Host_Docker}
+      grpc_Host_Local: ${grpc_Host_Local}
+      grpc_Port: ${grpc_Port}
+      production: ${production}
+      debug: ${debug}
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - shared_network
 
-  exchange_app:
-    build: ./exchangeBot
+  exchange_service:
+    build: ./exchangeService
+    image: sambly/exchange_service:latest
+    volumes:
+      - ./log/exchangeService:/app/log
+    ports:
+      - "50052:50051"     
+    environment:
+      ENVIRONMENT: docker
+      production: ${production}
+      debug: ${debug}
+      grpc_host_server: ${grpc_host_server}
+      grpc_Port: ${grpc_Port}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - shared_network
+  
+  exchange_bot:
+    build:
+      context: ./exchangeBot
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+        ENVIRONMENT: docker
+        BUILD_TARGET: "grpc" 
     image: sambly/exchange_app:latest
     volumes:
     - ./log/exchange_app:/app/log
     ports:
-      - "444:444"
+      - "${PROXY_PORT_HOST}:${PROXY_PORT}"
     environment:
       ENVIRONMENT: docker
-      serverName: ${serverName}
-      production: ${production}
-      inProductionOnlyApp: ${inProductionOnlyApp}
-      inProductionWithFrontedNgingx: ${inProductionWithFrontedNgingx}
-      httpPortProduction: ${httpPortProduction}
-      hostWeb: ${hostWeb}
-      usernameAuth: ${usernameAuth}
-      passwordAuth: ${passwordAuth}
-      API_KEY: ${API_KEY}
-      API_SECRET: ${API_SECRET}
-      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
-      TELEGRAM_USER: ${TELEGRAM_USER}
-      DB_HOST_Docker: mysql
-      DB_PORT: 3306
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
+      CONTENT_EMBED: true
+    env_file:
+      - .env
     depends_on:
       - feeder_app
     networks:
@@ -66,9 +86,49 @@ services:
       interval: 10s
       timeout: 10s
       retries: 3
+ 
+  loki:
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./logService/loki-config.yaml:/etc/loki/loki-config.yaml
+      - loki_data:/loki  # Том для хранения данных
+    networks:
+      - shared_network
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - ./logService/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - ./log:/app/log  
+      - /var/log:/var/log
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    depends_on:
+      - loki
+    networks:
+      - shared_network
+  
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:      
+      - GF_SERVER_ROOT_URL=${BASE_URL_GRAFANA}/trade/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    depends_on:
+      - loki
+    networks:
+      - shared_network
 
 volumes:
   mysql_data_exchange_full:
+  loki_data:
+  grafana_data:  
 
 networks:
   shared_network:
+    driver: bridge

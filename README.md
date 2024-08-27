@@ -1,20 +1,22 @@
 
+
+# GIT 
+
 // в самом начале 
  git submodule update --init --recursive
-
-
 cd path/to/submodule
-
-# Обновить подмодуль до последнего коммита
-# Обновить информацию о подмодулях
+// Обновить подмодуль до последнего коммита
+// Обновить информацию о подмодулях
 git fetch
-# Переключиться на основную ветку
+// Переключиться на основную ветку
 git checkout main
-# Обновить основную ветку
+// Обновить основную ветку
 git pull origin main
-# Обновить подмодули до последнего коммита в их репозиториях
+// Обновить подмодули до последнего коммита в их репозиториях
 git submodule update --remote
 
+
+# docker-compose
 
 docker login
 Сборка и загрузка образов:
@@ -45,3 +47,9 @@ docker-compose pull
 docker-compose up -d --no-deps
 
 Эта последовательность команд подтянет последние версии образов и перезапустит контейнеры в фоновом режиме, если образы изменились, без перезапуска зависимых контейнеров.
+
+// запуск используя окружение dev 
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up --build -d    
+
+// запуск используя окружение prod  
+docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d    

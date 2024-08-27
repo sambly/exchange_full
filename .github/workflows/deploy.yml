@@ -87,5 +87,7 @@ jobs:
         eval $(docker-machine env default)  # Устанавливает окружение Docker
         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
         docker-compose -f docker-compose.yaml pull
-        docker-compose -f docker-compose.yaml up -d
+        docker-compose -f docker-compose.prod.yaml pull
+        docker-compose -f docker-compose.dev.yaml pull
+        docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d 
         EOF
