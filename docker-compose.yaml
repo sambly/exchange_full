@@ -79,6 +79,7 @@ services:
       TELEGRAM_USER: ${TELEGRAM_USER}
       PRODUCTION_LOG: ${PRODUCTION_LOG}
       DEBUG_LOG: ${DEBUG_LOG}
+      VITE_GRAFANA_URL: grafana
     depends_on:
       - feeder_app
     networks:
