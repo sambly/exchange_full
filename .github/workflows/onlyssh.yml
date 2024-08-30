@@ -40,7 +40,6 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no -o ProxyCommand="ssh -i ~/.ssh/private_key -W %h:%p $JUMP_USER@$JUMP_HOST" -i ~/.ssh/private_key -p 2222 $LOCAL_USER@$LOCAL_HOST << 'EOF'
         cd C:\\Users\\admin\\Desktop\\go\\exchange_full
-        docker login
         docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml pull
         docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d 
         EOF
