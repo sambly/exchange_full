@@ -50,12 +50,24 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build and push Docker images
-      run: docker-compose -f docker-compose.yaml build
+      run: docker compose -f docker-compose.yaml -f docker-compose.prod.yaml build
       working-directory: ${{ github.workspace }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.G_TOKEN }}
+        PROXY_PORT_HOST: ${{ secrets.PROXY_PORT_HOST }}
+        PROXY_PORT: ${{ secrets.PROXY_PORT }}
+        BASE_URL_GRAFANA_PROD: ${{ vars.BASE_URL_GRAFANA_PROD }}
+        VITE_GRAFANA_URL: ${{ vars.VITE_GRAFANA_URL }}      
 
     - name: Push Docker images to Docker Hub
-      run: docker-compose -f docker-compose.yaml push
+      run: docker compose -f docker-compose.yaml -f docker-compose.prod.yaml push
       working-directory: ${{ github.workspace }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.G_TOKEN }}
+        PROXY_PORT_HOST: ${{ secrets.PROXY_PORT_HOST }}
+        PROXY_PORT: ${{ secrets.PROXY_PORT }}
+        BASE_URL_GRAFANA_PROD: ${{ vars.BASE_URL_GRAFANA_PROD }}
+        VITE_GRAFANA_URL: ${{ vars.VITE_GRAFANA_URL }}
 
     - name: Set up SSH key and known hosts
       env:
@@ -84,10 +96,6 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no -o ProxyCommand="ssh -i ~/.ssh/private_key -W %h:%p $JUMP_USER@$JUMP_HOST" -i ~/.ssh/private_key -p 2222 $LOCAL_USER@$LOCAL_HOST << 'EOF'
         cd C:\\Users\\admin\\Desktop\\go\\exchange_full
-        eval $(docker-machine env default)  # Устанавливает окружение Docker
-        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-        docker-compose -f docker-compose.yaml pull
-        docker-compose -f docker-compose.prod.yaml pull
-        docker-compose -f docker-compose.dev.yaml pull
+        docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml pull
         docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d 
         EOF

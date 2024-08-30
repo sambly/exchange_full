@@ -1,6 +1,5 @@
-version: '3.9'
-
 services:
   grafana:
     environment:
-      - BASE_URL_GRAFANA=${BASE_URL_GRAFANA_DEV}
+      - GF_SERVER_ROOT_URL=${BASE_URL_GRAFANA_DEV}/trade/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
