@@ -51,6 +51,7 @@ services:
       args:
         GITHUB_TOKEN: ${GITHUB_TOKEN}
         BUILD_TARGET: ${BUILD_TARGET:-grpc}
+        VITE_GRAFANA_URL: ${VITE_GRAFANA_URL:-grafana}
     image: sambly/exchange_app:latest
     volumes:
     - ./log/exchange_app:/app/log
