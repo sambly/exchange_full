@@ -1,9 +1,9 @@
-[submodule "feederApp"]
-	path = feederApp
-	url = https://github.com/sambly/feederApp.git
-[submodule "exchangeBot"]
-	path = exchangeBot
-	url = https://github.com/sambly/exchangeBot.git
+[submodule "feederapp"]
+	path = feederapp
+	url = https://github.com/sambly/feederapp.git
+[submodule "exchangebot"]
+	path = exchangebot
+	url = https://github.com/sambly/exchangebot.git
 [submodule "exchangeService"]
 	path = exchangeService
 	url = https://github.com/sambly/exchangeService.git
