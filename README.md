@@ -2,6 +2,8 @@
 
 # GIT 
 
+
+
 // в самом начале 
  git submodule update --init --recursive
 cd path/to/submodule
@@ -14,6 +16,13 @@ git checkout main
 git pull origin main
 // Обновить подмодули до последнего коммита в их репозиториях
 git submodule update --remote
+
+
+если менялось название проекта 
+git rm --cached exchangeBot
+git submodule sync
+git submodule update --init --recursive
+
 
 
 # docker-compose
