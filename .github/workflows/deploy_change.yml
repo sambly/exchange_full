@@ -109,8 +109,9 @@ jobs:
       run: |
         git add .
         git commit -m "Update submodules to latest commit" || echo "No changes to commit"
-        #TODO        git push origin main
-        git push origin exp
+        BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+        echo "Pushing to branch: $BRANCH_NAME"
+        git push origin $BRANCH_NAME
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
