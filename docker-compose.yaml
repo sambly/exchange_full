@@ -2,13 +2,13 @@ services:
 
   feeder_app:
     build:
-      context: ./feederApp
+      context: ./feederapp
       args:
         GITHUB_TOKEN: ${GITHUB_TOKEN}
         BUILD_TARGET: ${BUILD_TARGET:-grpc}        
-    image: sambly/feeder_app:latest
+    image: sambly/feederapp:${FEEDER_APP_TAG}
     volumes:
-      - ./log/feeder_app:/app/log
+      - ./log/feederapp:/app/log
     environment:
       ENVIRONMENT: docker
       DB_HOST_DOCKER: ${DB_HOST_DOCKER}
@@ -20,6 +20,7 @@ services:
       GRPC_PORT: ${GRPC_PORT}
       PRODUCTION_LOG: ${PRODUCTION_LOG}
       DEBUG_LOG: ${DEBUG_LOG}
+
     depends_on:
       mysql:
         condition: service_healthy
@@ -28,7 +29,7 @@ services:
 
   exchange_service:
     build: ./exchangeService
-    image: sambly/exchange_service:latest
+    image: sambly/exchange_service:${EXCHANGE_SERVICE_TAG}
     volumes:
       - ./log/exchangeService:/app/log
     ports:
@@ -47,14 +48,14 @@ services:
   
   exchange_bot:
     build:
-      context: ./exchangeBot
+      context: ./exchangebot
       args:
         GITHUB_TOKEN: ${GITHUB_TOKEN}
         BUILD_TARGET: ${BUILD_TARGET:-grpc}
         VITE_GRAFANA_URL: ${VITE_GRAFANA_URL:-grafana}
-    image: sambly/exchange_app:latest
+    image: sambly/exchangebot:${EXCHANGE_BOT_TAG}
     volumes:
-    - ./log/exchange_app:/app/log
+    - ./log/exchangebot:/app/log
     ports:
       - "${HOST_PORT:-8080}:${CONTAINER_PORT:-80}"
     environment:
