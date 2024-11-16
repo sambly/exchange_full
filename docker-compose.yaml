@@ -20,10 +20,8 @@ services:
       GRPC_PORT: ${GRPC_PORT}
       PRODUCTION_LOG: ${PRODUCTION_LOG}
       DEBUG_LOG: ${DEBUG_LOG}
-
     depends_on:
-      mysql:
-        condition: service_healthy
+      - exchange_service
     networks:
       - shared_network
 
@@ -40,9 +38,13 @@ services:
       GRPC_PORT: ${GRPC_PORT}
       PRODUCTION_LOG: ${PRODUCTION_LOG}
       DEBUG_LOG: ${DEBUG_LOG}
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_SERVICE_NAME: exchange-service
     depends_on:
       mysql:
         condition: service_healthy
+      otel-collector:
+        condition: service_started 
     networks:
       - shared_network
   
@@ -84,8 +86,11 @@ services:
       DEBUG_LOG: ${DEBUG_LOG}
       VITE_GRAFANA_URL: grafana
       EXCHANGE_TYPE: grpc
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_SERVICE_NAME: exchange-bot
     depends_on:
       - feeder_app
+      - exchange_service
     networks:
       - shared_network
 
@@ -140,6 +145,37 @@ services:
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
     depends_on:
       - loki
+    networks:
+      - shared_network
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.101.0
+    command:
+      - "--config"
+      - "/otel-local-config.yaml"
+    volumes:
+      - ./configs/collector.config.yaml:/otel-local-config.yaml
+    ports:
+      - 4317:4317
+    depends_on:
+      jaeger:
+        condition: service_started
+    networks:
+      - shared_network 
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    restart: unless-stopped
+    ports:
+      - 16686:16686
+      - 16685:16685
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "localhost:16686"]
+      interval: 1s
+      timeout: 3s
+      retries: 60
     networks:
       - shared_network
 
