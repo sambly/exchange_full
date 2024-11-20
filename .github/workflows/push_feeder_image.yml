@@ -1,4 +1,4 @@
-name: Full Deploy force
+name: push feeder image to dockerhub
 
 on:
   workflow_dispatch:
