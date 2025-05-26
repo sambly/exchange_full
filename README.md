@@ -62,3 +62,7 @@ docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up --build -d
 
 // запуск используя окружение prod  
 docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d    
+
+// построить или отправить какой то определенный образ 
+docker compose -f docker-compose.yaml -f docker-compose.prod.yaml build feeder_app
+docker compose -f docker-compose.yaml -f docker-compose.prod.yaml push feeder_app
