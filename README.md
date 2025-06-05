@@ -66,3 +66,6 @@ docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d
 // построить или отправить какой то определенный образ 
 docker compose -f docker-compose.yaml -f docker-compose.prod.yaml build feeder_app
 docker compose -f docker-compose.yaml -f docker-compose.prod.yaml push feeder_app
+
+// перезапуск одного сервиса 
+docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --force-recreate grafana

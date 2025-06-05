@@ -3,8 +3,8 @@ name: exchangebot-full
 services:
 
   feeder-app:
+    container_name: feeder-app
     build:
-      container_name: feeder-app
       context: ./feederapp
       args:
         GITHUB_TOKEN: ${GITHUB_TOKEN}    
@@ -13,8 +13,15 @@ services:
       - ./log/feederapp:/app/log
     environment:
       ENVIRONMENT: docker
+      FEEDER_HTTP_PORT_HEALTH: ${FEEDER_HTTP_PORT_HEALTH:-8080}        
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q -T 3 -t 1 http://localhost:${FEEDER_HTTP_PORT_HEALTH:-8080}/healthz || exit 1"]
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+      retries: 3      
     depends_on:
         exchange-service:
           condition: service_healthy
@@ -28,19 +35,21 @@ services:
     volumes:
       - ./log/exchangeService:/app/log
     ports:
-      - "${GRPC_HOST_PORT:-50052}:${GRPC_PORT:-50051}"  
+      - "${EXCHANGE_GRPC_HOST_PORT:-50052}:${EXCHANGE_GRPC_CONTAINER_PORT:-50051}"  
     environment:
       ENVIRONMENT: docker
-      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
-      OTEL_SERVICE_NAME: exchange-service
+      EXCHANGE_TRACER_ENABLE_OPEN_TELEMETRY: true 
+      EXCHANGE_TRACER_OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      EXCHANGE_TRACER_OTEL_SERVICE_NAME: exchange-service
+      EXCHANGE_HTTP_PORT_HEALTH: ${EXCHANGE_HTTP_PORT_HEALTH:-8080}      
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${HTTP_PORT:-8080}/healthz"]
+      test: ["CMD-SHELL", "wget --spider -q -T 3 -t 1 http://localhost:${EXCHANGE_HTTP_PORT_HEALTH:-8080}/healthz || exit 1"]
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 3s
       start_period: 5s
+      retries: 3
     depends_on:
       mysql:
         condition: service_healthy
@@ -60,15 +69,21 @@ services:
     volumes:
     - ./log/exchangebot:/app/log
     - ./configs:/app/configs
+    - ./internal/strategy:/app/internal/strategy
     ports:
-      - "${HOST_PORT:-8080}:${CONTAINER_PORT:-80}"
+      - "${EXCHANGEBOT_HOST_PORT:-8080}:${EXCHANGEBOT_WEB_LISTEN_PORT:-80}"
     environment:
       ENVIRONMENT: docker
+      EXCHANGEBOT_TRACER_ENABLE_OPEN_TELEMETRY: true 
+      EXCHANGEBOT_TRACER_OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      EXCHANGEBOT_TRACER_OTEL_SERVICE_NAME: exchangebot      
     env_file:
       - .env
     depends_on:
         exchange-service:
           condition: service_healthy
+        feeder-app:
+          condition: service_healthy   
     networks:
       - shared_network
 
@@ -90,7 +105,9 @@ services:
       timeout: 5s
       retries: 3
       start_period: 100s
+
   loki:
+    container_name: loki  
     image: grafana/loki:2.9.2
     ports:
       - "3100:3100"
@@ -102,6 +119,7 @@ services:
       - shared_network
 
   promtail:
+    container_name: promtail    
     image: grafana/promtail:2.9.2
     volumes:
       - ./logService/promtail-config.yaml:/etc/promtail/promtail-config.yaml
@@ -114,6 +132,7 @@ services:
       - shared_network
   
   grafana:
+    container_name: grafana   
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
@@ -128,12 +147,13 @@ services:
       - shared_network
 
   otel-collector:
+    container_name: otel-collector     
     image: otel/opentelemetry-collector-contrib:0.101.0
     command:
       - "--config"
       - "/otel-local-config.yaml"
     volumes:
-      - ./configs/collector.config.yaml:/otel-local-config.yaml
+      - ./configs-service/tracer/collector.config.yaml:/otel-local-config.yaml
     ports:
       - 4317:4317
     depends_on:
@@ -143,6 +163,7 @@ services:
       - shared_network 
 
   jaeger:
+    container_name: jaeger      
     image: jaegertracing/all-in-one:latest
     restart: unless-stopped
     ports:
@@ -158,6 +179,18 @@ services:
     networks:
       - shared_network
 
+  prometheus:
+    container_name: prometheus  
+    image: prom/prometheus
+    volumes:
+      - ./configs-service/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - exchangebot      
+    networks:
+      - shared_network
+      
 volumes:
   mysql_data_exchange_full:
   loki_data:
