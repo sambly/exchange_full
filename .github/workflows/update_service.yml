@@ -1,12 +1,7 @@
-name: update_service
+name: update-service
 
 on:
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy to'
-        required: true
-        default: 'production'
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -19,8 +14,8 @@ jobs:
   
     - name: Set Git configuration
       run: |
-        git config --global user.name "workflow"
-        git config --global user.email "kudryavblyzheka@mail.ru"
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
     - name: Update submodules to latest commit
       run: |
         git submodule sync
