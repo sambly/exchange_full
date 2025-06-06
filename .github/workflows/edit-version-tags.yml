@@ -1,12 +1,25 @@
-name: EditVersionTags
+name: edit-version-tags
+
+# EXCHANGE_BOT_TAG=v1.0.0 or latest
+# FEEDER_APP_TAG=v1.0.0 or latest
+# EXCHANGE_SERVICE_TAG=v1.0.0 or latest
+
 
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Environment to deploy to'
+      exchange_bot_tag:
+        description: 'Exchange Bot Docker tag (e.g., v1.2.3)'
         required: true
-        default: 'production'
+        default: 'latest'
+      feeder_app_tag:
+        description: 'Feeder App Docker tag'
+        required: true
+        default: 'latest'
+      exchange_service_tag:
+        description: 'Exchange Service Docker tag'
+        required: true
+        default: 'latest'
 
 jobs:
   build-and-deploy:
@@ -40,9 +53,9 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no -o ProxyCommand="ssh -i ~/.ssh/private_key -W %h:%p $JUMP_USER@$JUMP_HOST" -i ~/.ssh/private_key -p 2222 $LOCAL_USER@$LOCAL_HOST << 'EOF'
         cd C:\\Users\\admin\\Desktop\\go\\exchange_full
-        printf "\n" >> .env     
-        echo EXCHANGE_BOT_TAG=v1.0.1 >> .env
-        echo FEEDER_APP_TAG=v1.0.0 >> .env
-        echo EXCHANGE_SERVICE_TAG=v1.0.0 >> .env
+        printf "\n\n" >> .env     
+        echo "EXCHANGE_BOT_TAG=${{ github.event.inputs.exchange_bot_tag }}" >> .env
+        echo "FEEDER_APP_TAG=${{ github.event.inputs.feeder_app_tag }}" >> .env
+        echo "EXCHANGE_SERVICE_TAG=${{ github.event.inputs.exchange_service_tag }}" >> .env
         printf "\n" >> .env
         EOF
