@@ -166,6 +166,7 @@ services:
     container_name: jaeger      
     image: jaegertracing/all-in-one:latest
     restart: unless-stopped
+    command: ["--query.base-path=/trade/jaeger"]
     ports:
       - 16686:16686
       - 16685:16685
