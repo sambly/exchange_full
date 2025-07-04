@@ -1,71 +1,118 @@
+# Инструкции по работе с репозиторием
 
+## Работа с GIT и подмодулями
 
-# GIT 
+### Инициализация и обновление подмодулей
 
+```sh
+# В самом начале работы с репозиторием
+git submodule update --init --recursive
+```
 
+### Обновление подмодуля до последнего коммита
 
-// в самом начале 
- git submodule update --init --recursive
+```sh
 cd path/to/submodule
-// Обновить подмодуль до последнего коммита
-// Обновить информацию о подмодулях
-git fetch
-// Переключиться на основную ветку
-git checkout main
-// Обновить основную ветку
-git pull origin main
-// Обновить подмодули до последнего коммита в их репозиториях
-git submodule update --remote
+git fetch                     # Обновить информацию о подмодулях
+git checkout main             # Переключиться на основную ветку
+git pull origin main          # Обновить основную ветку
+git submodule update --remote # Обновить подмодули до последних коммитов в их репозиториях
+```
 
+### Если менялось название проекта
 
-если менялось название проекта 
+```sh
 git rm --cached exchangeBot
 git submodule sync
 git submodule update --init --recursive
+```
 
+### Откат подмодуля
 
+```sh
+git submodule update --checkout
+```
 
-# docker-compose
+### Сохранение изменений подмодулей
 
+```sh
+git add exchangebot exchangeService feederapp
+git commit -m "Update submodules to latest commits"
+```
+
+---
+
+## Работа с Docker Compose
+
+### Аутентификация
+
+```sh
 docker login
-Сборка и загрузка образов:
-docker-compose build: Только собирает образы, не запускает контейнеры.
-docker-compose push: Загружает собранные образы в реестр Docker.
+```
 
-Запуск контейнеров:
+### Сборка и загрузка образов
+
+- **Собрать образы (не запускать контейнеры):**
+  ```sh
+  docker-compose build
+  ```
+- **Загрузить собранные образы в реестр Docker:**
+  ```sh
+  docker-compose push
+  ```
+
+### Запуск контейнеров
+
+```sh
 docker-compose up
+```
 
-Получение последних версий образов:
+### Получение последних версий образов и запуск
+
+```sh
 docker-compose pull
 docker-compose up
+```
 
-// локально можно так запустить 
-docker-compose up --build: Сначала собирает образы, затем запускает контейнеры.
+### Локальный запуск с пересборкой
 
-Использование флагов
---no-deps: Не запускать контейнеры, от которых зависят указанные сервисы. Это полезно, если вам нужно обновить только определенные сервисы без перезапуска зависимых контейнеров.
+```sh
+docker-compose up --build
+```
 
---detach (-d): Запуск контейнеров в фоновом режиме.
+### Использование флагов
 
---force-recreate: Принудительно пересоздать контейнеры, даже если образы не изменились.
+- `--no-deps` — не запускать зависимости указанных сервисов.
+- `--detach` или `-d` — запуск в фоновом режиме.
+- `--force-recreate` — пересоздать контейнеры даже без изменений образа.
+- `--build` — пересобрать образы перед запуском.
 
---build: Пересобрать образы перед запуском контейнеров.
+#### Пример: перезапуск только изменённых контейнеров
 
-Пример команды для перезапуска только измененных контейнеров с использованием флагов:
+```sh
 docker-compose pull
 docker-compose up -d --no-deps
+```
 
-Эта последовательность команд подтянет последние версии образов и перезапустит контейнеры в фоновом режиме, если образы изменились, без перезапуска зависимых контейнеров.
+### Запуск с разными окружениями
 
-// запуск используя окружение dev 
-docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up --build -d    
+- **Dev-окружение:**
+  ```sh
+  docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up --build -d
+  ```
+- **Prod-окружение:**
+  ```sh
+  docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d
+  ```
 
-// запуск используя окружение prod  
-docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d    
+### Сборка или отправка определённого образа
 
-// построить или отправить какой то определенный образ 
+```sh
 docker compose -f docker-compose.yaml -f docker-compose.prod.yaml build feeder_app
 docker compose -f docker-compose.yaml -f docker-compose.prod.yaml push feeder_app
+```
 
-// перезапуск одного сервиса 
-docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --force-recreate grafana
+### Перезапуск одного сервиса
+
+```sh
+docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --force-recreate
