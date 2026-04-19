@@ -159,3 +159,18 @@ docker compose -f docker-compose.yaml -f docker-compose.prod.yaml push feeder_ap
 
 ```sh
 docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --force-recreate
+```
+
+### Полное обновление всех сервисов
+- Останавливает и удаляет все контейнеры
+- Скачивает свежие версии образов (--pull always)
+- Запускает контейнеры заново
+```sh
+docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml down
+docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --pull always
+```
+
+### Если нужно полностью очистить всё (включая volumes)
+
+```sh
+docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --force-recreate

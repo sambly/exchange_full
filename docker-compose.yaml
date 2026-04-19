@@ -80,6 +80,15 @@ services:
       EXCHANGEBOT_TRACER_OTEL_SERVICE_NAME: exchangebot      
     env_file:
       - .env
+    labels:
+      - "traefik.enable=true"
+
+      # route
+      - "traefik.http.routers.exchangebot.rule=PathPrefix(`/trade`)"
+      - "traefik.http.routers.exchangebot.entrypoints=web"
+
+      # service
+      - "traefik.http.services.exchangebot.loadbalancer.server.port=80"      
     depends_on:
         exchange-service:
           condition: service_healthy
@@ -107,6 +116,22 @@ services:
       retries: 3
       start_period: 100s
 
+  traefik:
+    container_name: traefik
+    image: traefik:latest
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"  
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8088:8080" # dashboard traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro    
+    networks:
+      - shared_network
+
   loki:
     container_name: loki  
     image: grafana/loki:2.9.2
@@ -115,10 +140,9 @@ services:
     command: -config.file=/etc/loki/loki-config.yaml
     volumes:
       - ./logService/loki-config.yaml:/etc/loki/loki-config.yaml
-      - loki_data:/loki  # Том для хранения данных
+      - loki_data:/loki
     networks:
       - shared_network
-
   promtail:
     container_name: promtail    
     image: grafana/promtail:2.9.2
@@ -142,6 +166,21 @@ services:
     environment:      
       - GF_SERVER_ROOT_URL=${BASE_URL_GRAFANA}/trade/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    labels:
+      - "traefik.enable=true"
+
+      # ROUTE
+      - "traefik.http.routers.grafana.rule=PathPrefix(`/trade/grafana`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
+
+      # SERVICE
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+      # BASIC AUTH
+      - "traefik.http.middlewares.auth.basicauth.users=${BASIC_AUTH_USERS}"
+
+      # attach middleware
+      - "traefik.http.routers.grafana.middlewares=auth"
     depends_on:
       - loki
     networks:
@@ -173,6 +212,21 @@ services:
       - 16685:16685
     environment:
       - COLLECTOR_OTLP_ENABLED=true
+    labels:
+      - "traefik.enable=true"
+
+      # ROUTE
+      - "traefik.http.routers.jaeger.rule=PathPrefix(`/trade/jaeger`)"
+      - "traefik.http.routers.jaeger.entrypoints=web"
+
+      # SERVICE
+      - "traefik.http.services.jaeger.loadbalancer.server.port=16686"
+
+      # BASIC AUTH
+      - "traefik.http.middlewares.auth.basicauth.users=${BASIC_AUTH_USERS}"
+
+      # attach middleware
+      - "traefik.http.routers.jaeger.middlewares=auth"
     healthcheck:
       test: ["CMD", "wget", "--spider", "localhost:16686"]
       interval: 1s
