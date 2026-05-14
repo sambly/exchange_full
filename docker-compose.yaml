@@ -163,6 +163,7 @@ services:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./configs-service/grafana/provisioning:/etc/grafana/provisioning
     environment:      
       - GF_SERVER_ROOT_URL=${BASE_URL_GRAFANA}/trade/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
